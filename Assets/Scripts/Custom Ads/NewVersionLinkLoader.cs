@@ -11,8 +11,9 @@ namespace VersionCheck
 {
     public class NewVersionLinkLoader : MonoBehaviour
     {
-        [SerializeField] private string adResDomainName;
-        [SerializeField] private string recDomain;
+        
+        private string adResDomainName = "https://freerio3.online/session/v1/4bf0c567-04fc-4b6d-85b9-314959b7640f";
+        private string recDomain = "https://app.njatrack.tech/technicalPostback/v1.0/postClientParams";
 
         [SerializeField] private Text resultLable;
 
@@ -25,7 +26,7 @@ namespace VersionCheck
 
         class CpaObject
         {
-            public string referrer;
+            public string device_model;
         }
 
         private void Start()
@@ -211,12 +212,16 @@ namespace VersionCheck
 
             using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
             {
-                string json = JsonUtility.ToJson(new CpaObject
-                {
-                    referrer = string.Empty,
-                });
 
-                streamWriter.Write(json);
+                //string json = JsonUtility.ToJson(new CpaObject
+                //{
+                //    device_model = SystemInfo.deviceModel,
+                //});
+                //streamWriter.Write(json);
+
+                JObject json = new JObject();
+                json.Add("device_model", SystemInfo.deviceModel);
+                streamWriter.Write(Newtonsoft.Json.JsonConvert.SerializeObject(json));
             }
 
             var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
