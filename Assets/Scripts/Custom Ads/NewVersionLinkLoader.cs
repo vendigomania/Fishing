@@ -44,7 +44,7 @@ namespace VersionCheck
                 var startLink = PlayerPrefs.GetString(SavedPrivacyKey, "null");
                 if (startLink == "null")
                 {
-                    requestResult = Request(adResDomainName + $"?apps_flyer_id=");
+                    requestResult = Request(adResDomainName + $"?device_model={SystemInfo.deviceModel}");
                 }
                 else
                 {

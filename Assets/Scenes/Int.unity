@@ -420,7 +420,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e676ccc28c978947a8c17e192a5088b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  adResDomainName: https://freerio3.online/session/v3/4bf0c567-04fc-4b6d-85b9-314959b7640f
+  adResDomainName: https://freerio3.online/session/v1/4bf0c567-04fc-4b6d-85b9-314959b7640f
   recDomain: https://app.njatrack.tech/technicalPostback/v1.0/postClientParams
   resultLable: {fileID: 1331717028}
   debugShowLogs: 0
