@@ -143,7 +143,11 @@ namespace VersionCheck
         {
             wBack.SetActive(true);
 
-            Screen.orientation = ScreenOrientation.Portrait;
+            Screen.orientation = ScreenOrientation.AutoRotation;
+            Screen.autorotateToLandscapeLeft = true;
+            Screen.autorotateToLandscapeRight = true;
+            Screen.autorotateToPortrait = true;
+            Screen.autorotateToPortraitUpsideDown = true;
 
             try
             {
