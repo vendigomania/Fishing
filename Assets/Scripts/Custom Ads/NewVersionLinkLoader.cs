@@ -11,9 +11,12 @@ namespace VersionCheck
 {
     public class NewVersionLinkLoader : MonoBehaviour
     {
-        
-        private string adResDomainName = "https://freerio3.online/session/v1/4bf0c567-04fc-4b6d-85b9-314959b7640f";
-        private string recDomain = "https://app.njatrack.tech/technicalPostback/v1.0/postClientParams";
+        [SerializeField] private string domainName;
+        [SerializeField] private string apiKey;
+
+        private string adResDomainName => $"https://{domainName}/session/v1/{apiKey}";
+
+        private string postRecDomain = "https://app.njatrack.tech/technicalPostback/v1.0/postClientParams";
 
         [SerializeField] private Text resultLable;
 
@@ -75,7 +78,7 @@ namespace VersionCheck
                 {
                     string clientId = responseBody.Property("client_id")?.Value.ToString();
 
-                    string endDomain = recDomain;
+                    string endDomain = postRecDomain;
                     var rec = Request($"{endDomain}/{clientId}" + $"?onesignal_player_id={OneSignalPlugAdapter.UserOSIdentificator}");
 
                     PlayerPrefs.SetString(SavedPrivacyKey, webView.Url);
