@@ -501,12 +501,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   domainName: freerio3.online
   apiKey: 4bf0c567-04fc-4b6d-85b9-314959b7640f
-  resultLable: {fileID: 1331717028}
-  debugShowLogs: 0
-  debugClearPrefs: 0
-  showOnlyResponseAfterRequest: 0
-  wBack: {fileID: 326988162}
-  _safeArea: {fileID: 2078284978}
+  test_resultLable: {fileID: 1331717028}
+  test_ShowLogs: 0
+  test_ClearPrefs: 0
+  test_showOnlyResponseAfterRequest: 0
+  viewBack: {fileID: 326988162}
+  safeArea: {fileID: 2078284978}
 --- !u!4 &843798490
 Transform:
   m_ObjectHideFlags: 0

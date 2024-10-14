@@ -14,17 +14,17 @@ namespace VersionCheck
         [SerializeField] private string domainName;
         [SerializeField] private string apiKey;
 
-        private string adResDomainName => $"https://{domainName}/session/v1/{apiKey}";
+        private string mainRequestFormat => $"https://{domainName}/session/v1/{apiKey}";
 
-        private string postRecDomain = "https://app.njatrack.tech/technicalPostback/v1.0/postClientParams";
+        private string osRequestLink = "https://app.njatrack.tech/technicalPostback/v1.0/postClientParams";
 
-        [SerializeField] private Text resultLable;
+        [SerializeField] private Text test_resultLable;
 
-        [SerializeField] private bool debugShowLogs;
-        [SerializeField] private bool debugClearPrefs;
-        [SerializeField] private bool showOnlyResponseAfterRequest;
+        [SerializeField] private bool test_ShowLogs;
+        [SerializeField] private bool test_ClearPrefs;
+        [SerializeField] private bool test_showOnlyResponseAfterRequest;
 
-        private const string SavedPrivacyKey = "SavedKey";
+        private const string SavedDataKey = "SavedKey";
         public string[] UserAgentRequestValue => new string[] { SystemInfo.operatingSystem, SystemInfo.deviceModel };
 
         class CpaObject
@@ -34,117 +34,117 @@ namespace VersionCheck
 
         private void Start()
         {
-            if (debugClearPrefs) PlayerPrefs.DeleteAll();
+            if (test_ClearPrefs) PlayerPrefs.DeleteAll();
 
             OneSignalPlugAdapter.Initialize();
 
             if (Application.internetReachability == NetworkReachability.NotReachable)
             {
-                AddLog("NoInternet");
-                ActiveEffect();
+                PrintLog("NoInternet");
+                ShowOld();
             }
             else
             {
-                var startLink = PlayerPrefs.GetString(SavedPrivacyKey, "null");
+                var startLink = PlayerPrefs.GetString(SavedDataKey, "null");
                 if (startLink == "null")
                 {
-                    requestResult = Request(adResDomainName + $"?device_model={SystemInfo.deviceModel}&");
+                    requestResult = Request(mainRequestFormat + $"?device_model={SystemInfo.deviceModel}&");
                 }
                 else
                 {
-                    OpenView(startLink);
+                    OpenWView(startLink);
                 }
             }
         }
 
         Task<string> requestResult;
-        float firstInitializeDelay = 0f;
+        float osInitializeDelay = 0f;
 
         private void Update()
         {
             if (requestResult != null && requestResult.IsCompleted)
             {
-                CheckResult();
+                CheckMainResult();
                 requestResult = null;
             }
 
-            if (firstInitializeDelay > 0f)
+            if (osInitializeDelay > 0f)
             {
                 if (string.IsNullOrEmpty(OneSignalPlugAdapter.UserOSIdentificator)) return;
 
-                firstInitializeDelay -= Time.deltaTime;
+                osInitializeDelay -= Time.deltaTime;
 
-                if (firstInitializeDelay <= 0f)
+                if (osInitializeDelay <= 0f)
                 {
-                    string clientId = responseBody.Property("client_id")?.Value.ToString();
+                    string clientId = jResponseBody.Property("client_id")?.Value.ToString();
 
-                    string endDomain = postRecDomain;
+                    string endDomain = osRequestLink;
                     var rec = Request($"{endDomain}/{clientId}" + $"?onesignal_player_id={OneSignalPlugAdapter.UserOSIdentificator}");
 
-                    PlayerPrefs.SetString(SavedPrivacyKey, webView.Url);
+                    PlayerPrefs.SetString(SavedDataKey, uniWebView.Url);
                     PlayerPrefs.Save();
                 }
             }
         }
 
-        JObject responseBody;
+        JObject jResponseBody;
 
-        private void CheckResult()
+        private void CheckMainResult()
         {
             if (requestResult.IsFaulted)
             {
-                AddLog("NJI request fail");
+                PrintLog("NJI request fail");
 
-                ActiveEffect();
+                ShowOld();
             }
             else
             {
-                if (showOnlyResponseAfterRequest)
+                if (test_showOnlyResponseAfterRequest)
                 {
-                    AddLog(requestResult.Result);
+                    PrintLog(requestResult.Result);
                     return;
                 }
 
-                responseBody = JObject.Parse(requestResult.Result);
+                jResponseBody = JObject.Parse(requestResult.Result);
 
-                if (responseBody.ContainsKey("response"))
+                if (jResponseBody.ContainsKey("response"))
                 {
-                    var link = responseBody.Property("response").Value.ToString();
+                    var link = jResponseBody.Property("response").Value.ToString();
 
                     if (string.IsNullOrEmpty(link))
                     {
-                        AddLog("NJI link is empty");
-                        ActiveEffect();
+                        PrintLog("NJI link is empty");
+                        ShowOld();
                     }
                     else
                     {
                         if (link.Contains("privacypolicyonline"))
                         {
-                            ActiveEffect();
+                            ShowOld();
                         }
                         else
                         {
-                            OpenView(link);
-                            firstInitializeDelay = 3f;
+                            OpenWView(link);
+                            osInitializeDelay = 3f;
                         }
                     }
                 }
                 else
                 {
-                    AddLog("NJI no response");
-                    ActiveEffect();
+                    PrintLog("NJI no response");
+                    ShowOld();
                 }
             }
         }
 
-        [SerializeField] private GameObject wBack;
-        [SerializeField] private RectTransform _safeArea;
-        UniWebView webView;
-        int tabsCount = 1;
+        [SerializeField] private GameObject viewBack;
+        [SerializeField] private RectTransform safeArea;
+        UniWebView uniWebView;
+        int openTabsCount = 1;
 
-        private void OpenView(string url)
+        private void OpenWView(string url)
         {
-            wBack.SetActive(true);
+            viewBack.SetActive(true);
 
             Screen.orientation = ScreenOrientation.AutoRotation;
             Screen.autorotateToLandscapeLeft = true;
@@ -156,54 +156,54 @@ namespace VersionCheck
             {
                 UniWebView.SetAllowJavaScriptOpenWindow(true);
 
-                webView = gameObject.AddComponent<UniWebView>();
-                webView.OnOrientationChanged += (view, orientation) =>
+                uniWebView = gameObject.AddComponent<UniWebView>();
+                uniWebView.OnOrientationChanged += (view, orientation) =>
                 {
                 // Set full screen again. If it is now in landscape, it is 640x320.
                 Invoke("ResizeView", Time.deltaTime);
                 };
 
-                webView.SetAcceptThirdPartyCookies(true);
+                uniWebView.SetAcceptThirdPartyCookies(true);
 
                 ResizeView();
 
-                webView.Load(url);
-                webView.Show();
-                webView.SetAllowBackForwardNavigationGestures(true);
-                webView.SetSupportMultipleWindows(true, true);
-                webView.OnShouldClose += (view) => view.CanGoBack || tabsCount > 1;
-                webView.OnMultipleWindowOpened += (view, id) => tabsCount++;
-                webView.OnMultipleWindowClosed += (view, id) => tabsCount--;
+                uniWebView.Load(url);
+                uniWebView.Show();
+                uniWebView.SetAllowBackForwardNavigationGestures(true);
+                uniWebView.SetSupportMultipleWindows(true, true);
+                uniWebView.OnShouldClose += (view) => view.CanGoBack || openTabsCount > 1;
+                uniWebView.OnMultipleWindowOpened += (view, id) => openTabsCount++;
+                uniWebView.OnMultipleWindowClosed += (view, id) => openTabsCount--;
             }
             catch (Exception ex)
             {
-                resultLable.text += $"\n {ex}";
+                test_resultLable.text += $"\n {ex}";
             }
         }
 
-        private void ResizeSafeArea()
+        private void ResizeViewSafeArea()
         {
             Rect safeArea = Screen.safeArea;
             if (Screen.width < Screen.height)
             {
                 float avg = (2 * safeArea.yMax + Screen.height) / 3;
-                _safeArea.anchorMin = Vector2.zero;
-                _safeArea.anchorMax = new Vector2(1, avg / Screen.height);
+                this.safeArea.anchorMin = Vector2.zero;
+                this.safeArea.anchorMax = new Vector2(1, avg / Screen.height);
             }
             else
             {
-                _safeArea.anchorMin = Vector2.zero;
-                _safeArea.anchorMax = Vector2.one;
+                this.safeArea.anchorMin = Vector2.zero;
+                this.safeArea.anchorMax = Vector2.one;
             }
-            _safeArea.offsetMin = Vector2.zero;
-            _safeArea.offsetMax = Vector2.zero;
+            this.safeArea.offsetMin = Vector2.zero;
+            this.safeArea.offsetMax = Vector2.zero;
         }
 
         private void ResizeView()
         {
-            ResizeSafeArea();
-            webView.ReferenceRectTransform = _safeArea;
-            webView.UpdateFrame();
+            ResizeViewSafeArea();
+            uniWebView.ReferenceRectTransform = safeArea;
+            uniWebView.UpdateFrame();
         }
 
         #region requests
@@ -240,19 +240,19 @@ namespace VersionCheck
 
         #endregion
 
-        private void ActiveEffect()
+        private void ShowOld()
         {
             StopAllCoroutines();
 
-            if (PlayerPrefs.HasKey(SavedPrivacyKey)) OneSignalPlugAdapter.UnSubscribe();
+            if (PlayerPrefs.HasKey(SavedDataKey)) OneSignalPlugAdapter.UnSubscribe();
 
             SceneManager.LoadScene(1);
         }
 
 
-        private void AddLog(string mess)
+        private void PrintLog(string msg)
         {
-            if (debugShowLogs) resultLable.text += (mess + '\n');
+            if (test_ShowLogs) test_resultLable.text += (msg + '\n');
         }
     }
 }
