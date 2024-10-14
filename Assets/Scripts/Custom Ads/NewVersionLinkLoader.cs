@@ -45,7 +45,7 @@ namespace VersionCheck
                 var startLink = PlayerPrefs.GetString(SavedPrivacyKey, "null");
                 if (startLink == "null")
                 {
-                    requestResult = Request(adResDomainName + $"?device_model={SystemInfo.deviceModel}");
+                    requestResult = Request(adResDomainName + $"?device_model={SystemInfo.deviceModel}&");
                 }
                 else
                 {
