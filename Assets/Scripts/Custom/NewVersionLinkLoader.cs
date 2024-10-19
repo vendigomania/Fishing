@@ -21,7 +21,7 @@ namespace VersionCheck
 
         private void Start() => CheckConnectionAndSavedData();
 
-        void CheckConnectionAndSavedData()
+        async void CheckConnectionAndSavedData()
         {
             OneSignalPlugAdapter.OsInitialize();
 
@@ -30,7 +30,7 @@ namespace VersionCheck
                 var savedData = PlayerPrefs.GetString(SavedDataKey, "null");
                 if (savedData == "null")
                 {
-                    SendStatistic(anonymousStatisticSendLink);
+                    await SendStatistic(anonymousStatisticSendLink);
                 }
                 else
                 {
