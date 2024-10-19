@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -9,12 +10,14 @@ public class StartScreen : MonoBehaviour
     [SerializeField] private Button classicModeBtn;
     [SerializeField] private Button duelModeBtn;
     [SerializeField] private Button raceModeBtn;
+    [SerializeField] private TMP_Text racePLaceLable;
 
     private void Start()
     {
         classicModeBtn.onClick.AddListener(Classic);
         duelModeBtn.onClick.AddListener(Duel);
         raceModeBtn.onClick.AddListener(Race);
+        racePLaceLable.text = $"Place in leaderboard {Game.Race.RaceController.GetPlayerRacePlace()}";
     }
 
     private void Classic()

@@ -30,18 +30,19 @@ namespace Game.Duel
                 gameObject.SetActive(false);
                 return;    
             }
+        }
 
-            StartCoroutine(Timer(90));
+        public void StartDuel()
+        {
+            StartCoroutine(Timer(120));
             StartCoroutine(BotWork());
-
-            Invoke("CatchTheFish", Random.Range(2, 10));
         }
 
         IEnumerator BotWork()
         {
             while(!resultScreen.activeSelf)
             {
-                yield return new WaitForSeconds(Random.Range(4, 12));
+                yield return new WaitForSeconds(Random.Range(4, 14));
 
                 var targetFish = Random.Range(0, main.fishes.Count);
                 if (!main.fishes[targetFish].gameObject.activeSelf) targetFish = (targetFish + 1) / main.fishes.Count;
@@ -50,9 +51,9 @@ namespace Game.Duel
                 hitRectTransform.gameObject.SetActive(true);
                 main.fishes[targetFish].gameObject.SetActive(false);
 
-                yield return new WaitForSeconds(Random.Range(4, 10));
+                yield return new WaitForSeconds(Random.Range(8, 10));
 
-                if(Random.Range(0, 100) < 60)
+                if(Random.Range(0, 100) < 50)
                 {
                     botEarned += GameData.GetPrice(main.fishes[targetFish].Weight, main.fishes[targetFish].Model);
                 }
@@ -81,6 +82,15 @@ namespace Game.Duel
             winTitle.SetActive(main.EarnedInGame > botEarned);
             loseTitle.SetActive(main.EarnedInGame < botEarned);
             resultDesc.text = string.Format("YOU earn {0}$\nENEMY earn {1}$", main.EarnedInGame, botEarned);
+
+            if(main.EarnedInGame > botEarned)
+            {
+                GameData.Instance.Cash += botEarned;
+            }
+            else if(main.EarnedInGame < botEarned)
+            {
+                GameData.Instance.Cash -= main.EarnedInGame;
+            }
 
             if (main.EarnedInGame > botEarned) GameAudioController.Instance.Win();
             else GameAudioController.Instance.Lose();

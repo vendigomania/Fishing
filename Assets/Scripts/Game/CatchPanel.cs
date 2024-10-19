@@ -20,7 +20,7 @@ public class CatchPanel : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     float velocity;
     float weight;
 
-    private float PlayerZoneHeight => (GameData.Instance.CatchZoneEasy + 1) * 0.03f;
+    private float PlayerZoneHeight => (GameData.Instance.CatchZoneEasy + 1) * 0.05f;
 
     public void OnPointerDown(PointerEventData eventData)
     {
