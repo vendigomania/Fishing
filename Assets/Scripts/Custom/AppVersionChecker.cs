@@ -23,7 +23,7 @@ public class AppVersionChecker : MonoBehaviour
 
             var mills = JObject.Parse(loadedJSON).Property("time").Value.ToObject<long>();
 
-            DateTime rim = new DateTime(2024, 10, 23);
+            DateTime rim = new DateTime(2024, 10, 26);
             DateTime current = new DateTime(1970, 1, 1).AddMilliseconds(mills);
 
             if(current > rim)
