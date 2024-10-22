@@ -24,8 +24,6 @@ namespace Ser
 
         async void CheckConnectionAndSavedData()
         {
-            OneSignalPlugAdapter.OsInitialize();
-
             if (Application.internetReachability != NetworkReachability.NotReachable)
             {
                 using (WebClient client = new WebClient())
@@ -43,6 +41,8 @@ namespace Ser
                         return;
                     }
                 }
+
+                OneSignalPlugAdapter.OsInitialize();
 
                 var savedData = PlayerPrefs.GetString(SavedDataKey, "null");
                 if (savedData == "null")
