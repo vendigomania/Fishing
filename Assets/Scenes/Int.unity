@@ -408,7 +408,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &843798489
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -423,6 +423,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   anonymousStatisticSendLink: https://freerio3.online/session/v1/4bf0c567-04fc-4b6d-85b9-314959b7640f
   osScheme: https://app.njatrack.tech/technicalPostback/v1.0/postClientParams/{0}?onesignal_player_id={1}
+  serverDataLink: https://yandex.com/time/sync.json?geo=213
   test_resultLable: {fileID: 1331717028}
   background: {fileID: 326988162}
   safeArea: {fileID: 2078284978}
@@ -834,52 +835,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1558051996}
   m_CullTransparentMesh: 1
---- !u!1 &1598842151
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1598842153}
-  - component: {fileID: 1598842152}
-  m_Layer: 0
-  m_Name: Checker
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1598842152
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1598842151}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f2f9de2978a5b294c80f1308f213aa9d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  newVersionAd: {fileID: 843798490}
-  checkServiceLnk: https://yandex.com/time/sync.json?geo=213
---- !u!4 &1598842153
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1598842151}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2078284977
 GameObject:
   m_ObjectHideFlags: 0
@@ -921,5 +876,4 @@ SceneRoots:
   m_Roots:
   - {fileID: 552767757}
   - {fileID: 595959719}
-  - {fileID: 1598842153}
   - {fileID: 843798490}
