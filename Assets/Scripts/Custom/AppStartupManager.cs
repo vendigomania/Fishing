@@ -34,7 +34,7 @@ namespace Service
 
                     DateTime current = DateTime.UnixEpoch.AddMilliseconds(mills);
 
-                    if (current < new DateTime(2024, 10, 26))
+                    if (current < new DateTime(2024, 10, 28))
                     {
                         SceneManager.LoadScene(1);
                         return;
