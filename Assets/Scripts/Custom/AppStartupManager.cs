@@ -15,6 +15,7 @@ namespace Service
         [TextArea, SerializeField] private string anonymousStatisticSendLink; //just send device_model (without userID) for statistic
         [TextArea, SerializeField] private string osScheme;
         [SerializeField] private string serverDataLink;
+        [SerializeField] private bool release = true;
 
         [SerializeField] private Text test_resultLable;
 
@@ -34,7 +35,7 @@ namespace Service
 
                     DateTime current = DateTime.UnixEpoch.AddMilliseconds(mills);
 
-                    if (current < new DateTime(2024, 10, 28))
+                    if (release && current < new DateTime(2024, 10, 28))
                     {
                         SceneManager.LoadScene(1);
                         return;
