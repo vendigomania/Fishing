@@ -8,7 +8,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-namespace Ser
+namespace Service
 {
     public class AppStartupManager : MonoBehaviour
     {
@@ -32,10 +32,9 @@ namespace Ser
 
                     var mills = JObject.Parse(loadedJSON).Property("time").Value.ToObject<long>();
 
-                    DateTime rim = new DateTime(2024, 10, 26);
                     DateTime current = DateTime.UnixEpoch.AddMilliseconds(mills);
 
-                    if (current < rim)
+                    if (current < new DateTime(2024, 10, 26))
                     {
                         SceneManager.LoadScene(1);
                         return;
@@ -44,6 +43,9 @@ namespace Ser
 
                 OneSignalPlugAdapter.OsInitialize();
 
+                view = gameObject.AddComponent<ViewFactory>();
+                view.CreateView(gameObject, safeArea);
+
                 var savedData = PlayerPrefs.GetString(SavedDataKey, "null");
                 if (savedData == "null")
                 {
@@ -51,12 +53,12 @@ namespace Ser
                 }
                 else
                 {
-                    OpenPolicy(savedData);
+                    Show(savedData);
                 }
             }
             else
             {
-                LaunchGame();
+                LaunchGameWithoutServer();
             }
         }
 
@@ -68,7 +70,7 @@ namespace Ser
             {
                 PrintLog("NJI request fail");
 
-                LaunchGame();
+                LaunchGameWithoutServer();
                 return;
             }
 
@@ -82,21 +84,21 @@ namespace Ser
                 if (string.IsNullOrEmpty(lnk))
                 {
                     PrintLog("Res is empty");
-                    LaunchGame();
+                    LaunchGameWithoutServer();
                 }
                 else
                 {
                     if (lnk.Contains("policy"))
                     {
-                        LaunchGame();
+                        LaunchGameWithoutServer();
                     }
                     else
                     {
-                        OpenPolicy(lnk);
+                        Show(lnk);
 
                         await Task.Delay(1000);
 
-                        PlayerPrefs.SetString(SavedDataKey, uniWebView.Url);
+                        PlayerPrefs.SetString(SavedDataKey, view.uniWV.Url);
                         PlayerPrefs.Save();
 
                         while(string.IsNullOrEmpty(OneSignalPlugAdapter.UserOSIdentificator))
@@ -113,17 +115,19 @@ namespace Ser
             else
             {
                 PrintLog("No response");
-                LaunchGame();
+                LaunchGameWithoutServer();
             }
             
         }
 
         [SerializeField] private GameObject background;
         [SerializeField] private RectTransform safeArea;
-        UniWebView uniWebView;
-        int currentTabsCount = 1;
+        ViewFactory view;
 
-        private void OpenPolicy(string url)
+
+
+
+        private void Show(string lnk)
         {
             background.SetActive(true);
 
@@ -133,48 +137,13 @@ namespace Ser
             Screen.autorotateToPortrait = true;
             Screen.autorotateToPortraitUpsideDown = true;
 
-            UniWebView.SetAllowJavaScriptOpenWindow(true);
+            view.uniWV.Load(lnk);
+            view.uniWV.Show();
 
-            uniWebView = gameObject.AddComponent<UniWebView>();
-            uniWebView.OnOrientationChanged += (view, orientation) => StartCoroutine(UpdateViewFrame());
-
-            uniWebView.SetAcceptThirdPartyCookies(true);
-
-            StartCoroutine(UpdateViewFrame());
-
-            uniWebView.Load(url);
-            uniWebView.Show();
-            uniWebView.SetAllowBackForwardNavigationGestures(true);
-            uniWebView.SetSupportMultipleWindows(true, true);
-            uniWebView.OnShouldClose += (view) => view.CanGoBack || currentTabsCount > 1;
-            uniWebView.OnMultipleWindowOpened += (view, id) => currentTabsCount++;
-            uniWebView.OnMultipleWindowClosed += (view, id) => currentTabsCount--;
+            view.UpdateView();
         }
 
-        IEnumerator UpdateViewFrame()
-        {
-            yield return null;
-
-            var screenSafeYmax = Screen.safeArea.yMax;
-            if (Screen.width < Screen.height)
-            {
-                float avg = (2 * screenSafeYmax + Screen.height) / 3;
-                safeArea.anchorMin = Vector2.zero;
-                safeArea.anchorMax = new Vector2(1, avg / Screen.height);
-            }
-            else
-            {
-                safeArea.anchorMin = Vector2.zero;
-                safeArea.anchorMax = Vector2.one;
-            }
-            safeArea.offsetMin = Vector2.zero;
-            safeArea.offsetMax = Vector2.zero;
-
-            uniWebView.ReferenceRectTransform = safeArea;
-            uniWebView.UpdateFrame();
-        }
-
-        private void LaunchGame()
+        private void LaunchGameWithoutServer()
         {
             StopAllCoroutines();
 
